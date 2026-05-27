@@ -1,0 +1,12 @@
+torch>=2.0
+transformers>=4.30
+datasets
+sklearn-crfsuite
+torchcrf
+openai
+matplotlib
+seaborn
+scipy
+numpy
+scikit-learn
+pyyaml
