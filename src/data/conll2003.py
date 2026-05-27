@@ -26,7 +26,8 @@ class CoNLL2003(BaseDataset):
 
     def prepare(self) -> dict:
         print("Downloading CoNLL-2003 from HuggingFace...")
-        raw = load_dataset("conll2003", trust_remote_code=True)
+        # datasets 4.x removed loading-script support; use auto-converted parquet
+        raw = load_dataset("conll2003", revision="refs/convert/parquet")
 
         data = {}
         for split in ["train", "validation", "test"]:

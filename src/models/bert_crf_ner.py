@@ -16,16 +16,24 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
+from torch.optim import AdamW
 from transformers import (
     BertTokenizerFast, BertModel,
-    AdamW, get_linear_schedule_with_warmup,
+    get_linear_schedule_with_warmup,
 )
-from torchcrf import CRF
+from TorchCRF import CRF   # pip install TorchCRF (supports batch_first)
 from sklearn.metrics import classification_report
 
 from src.models.base import BaseModel, PredictionRow
 
-DEVICE   = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def _best_device() -> torch.device:
+    if torch.cuda.is_available():
+        return torch.device("cuda")          # NVIDIA GPU
+    if torch.backends.mps.is_available():
+        return torch.device("mps")           # Apple Silicon GPU
+    return torch.device("cpu")
+
+DEVICE = _best_device()
 MAX_LEN  = 128
 DATA_DIR = "data"
 
@@ -159,7 +167,7 @@ class _NERDataset(Dataset):
             "input_ids":      enc["input_ids"].squeeze(),
             "attention_mask": enc["attention_mask"].squeeze(),
             "labels":         torch.tensor(label_ids, dtype=torch.long),
-            "word_ids":       wids,
+            # word_ids excluded: contains None (special tokens), breaks DataLoader collate
         }
 
 
