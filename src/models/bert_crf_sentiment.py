@@ -238,7 +238,7 @@ class BertCRFSentiment(BaseModel):
             "state_dict": self._module.state_dict(),
             "bert_name":  self.bert_name,
         }, path)
-        print(f"Saved → {path}")
+        print(f"Saved -> {path}")
 
     def load(self, path: str = "outputs/saved/bert_crf_sentiment.pt") -> None:
         ckpt         = torch.load(path, map_location=DEVICE)
@@ -253,15 +253,15 @@ if __name__ == "__main__":
     data  = IMDB().load()
     model = BertCRFSentiment(epochs=2)
 
-    print("── Training ──")
+    print("-- Training --")
     model.train(data["train"], data["validation"])
     model.save()
 
-    print("\n── Predicting test set ──")
+    print("\n-- Predicting test set --")
     test_rows = model.predict(data["test"])
     model.save_predictions(test_rows, split="test")
 
-    print("\n── Predicting val set ──")
+    print("\n-- Predicting val set --")
     val_rows = model.predict(data["validation"])
     model.save_predictions(val_rows, split="val")
 

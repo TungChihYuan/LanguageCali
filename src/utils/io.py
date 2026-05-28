@@ -44,7 +44,7 @@ def save_predictions(rows, model_name: str, task: str,
             d["confidence"] = round(float(d["confidence"]), 6)
             writer.writerow({k: d.get(k, "") for k in fields})
 
-    print(f"  Saved {len(rows):,} rows → {path}")
+    print(f"  Saved {len(rows):,} rows -> {path}")
     return path
 
 

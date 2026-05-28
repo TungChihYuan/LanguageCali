@@ -20,7 +20,7 @@ from src.data.conll2003 import CoNLL2003
 DATA_DIR = "data"
 
 
-# ── Feature engineering ───────────────────────────────────────────────────────
+# -- Feature engineering -------------------------------------------------------
 
 def _word_features(tokens: list[str], i: int) -> dict:
     w = tokens[i]
@@ -88,7 +88,7 @@ def _sent_to_labels(tags):
     return tags
 
 
-# ── Model ─────────────────────────────────────────────────────────────────────
+# -- Model ---------------------------------------------------------------------
 
 class CRFNER(BaseModel):
     """
@@ -153,28 +153,28 @@ class CRFNER(BaseModel):
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
         with open(path, "wb") as f:
             pickle.dump(self._crf, f)
-        print(f"Saved → {path}")
+        print(f"Saved -> {path}")
 
     def load(self, path: str = "outputs/saved/crf_ner.pkl") -> None:
         with open(path, "rb") as f:
             self._crf = pickle.load(f)
 
 
-# ── Entrypoint ────────────────────────────────────────────────────────────────
+# -- Entrypoint ----------------------------------------------------------------
 
 if __name__ == "__main__":
     data  = CoNLL2003().load()
     model = CRFNER()
 
-    print("── Training ──")
+    print("-- Training --")
     model.train(data["train"], data["validation"])
     model.save()
 
-    print("\n── Predicting test set ──")
+    print("\n-- Predicting test set --")
     test_rows = model.predict(data["test"])
     model.save_predictions(test_rows, split="test")
 
-    print("\n── Predicting val set ──")
+    print("\n-- Predicting val set --")
     val_rows = model.predict(data["validation"])
     model.save_predictions(val_rows, split="val")
 

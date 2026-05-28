@@ -128,7 +128,7 @@ class CRFSentiment(BaseModel):
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
         with open(path, "wb") as f:
             pickle.dump(self._crf, f)
-        print(f"Saved → {path}")
+        print(f"Saved -> {path}")
 
     def load(self, path: str = "outputs/saved/crf_sentiment.pkl") -> None:
         with open(path, "rb") as f:
@@ -143,15 +143,15 @@ if __name__ == "__main__":
     data  = IMDB().load()
     model = CRFSentiment()
 
-    print("── Training ──")
+    print("-- Training --")
     model.train(data["train"], data["validation"])
     model.save()
 
-    print("\n── Predicting test set ──")
+    print("\n-- Predicting test set --")
     test_rows = model.predict(data["test"])
     model.save_predictions(test_rows, split="test")
 
-    print("\n── Predicting val set ──")
+    print("\n-- Predicting val set --")
     val_rows = model.predict(data["validation"])
     model.save_predictions(val_rows, split="val")
 

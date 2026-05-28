@@ -3,8 +3,8 @@ experiments/compare.py
 Load all analysis JSONs and generate comparison figures + LaTeX tables.
 
 Figures produced:
-  1. ECE before/after TS — NER
-  2. ECE before/after TS — Sentiment
+  1. ECE before/after TS -- NER
+  2. ECE before/after TS -- Sentiment
   3. Entity-only vs all-token ECE
   4. Theory 1: BERT vs BERT-CRF
 
@@ -53,9 +53,9 @@ def print_main_table(results: list[dict]) -> None:
         if prev and r["task"] != prev: print()
         prev  = r["task"]
         name  = DISPLAY_NAMES.get(_model_key(r["model"]), r["model"])
-        T     = f"{r.get('temperature', None):.2f}" if r.get("temperature") else "  —"
-        ece_t = f"{r.get('ece_after_scaling'):.4f}" if r.get("ece_after_scaling") else "   —"
-        ent   = f"{r.get('entity_ece'):.4f}"        if r.get("entity_ece")        else "   —"
+        T     = f"{r.get('temperature', None):.2f}" if r.get("temperature") else "  --"
+        ece_t = f"{r.get('ece_after_scaling'):.4f}" if r.get("ece_after_scaling") else "   --"
+        ent   = f"{r.get('entity_ece'):.4f}"        if r.get("entity_ece")        else "   --"
         print(f"{name:<30} {r['task']:<11} {r['accuracy']:>6.4f} "
               f"{r['ece']:>7.4f} {ent:>9} {r['ada_ece']:>8.4f} "
               f"{r['brier']['brier']:>7.4f} {T:>6} {ece_t:>8}")
@@ -81,7 +81,7 @@ def print_latex(results: list[dict]) -> None:
         if prev and r["task"] != prev: print(r"\midrule")
         prev  = r["task"]
         name  = DISPLAY_NAMES.get(_model_key(r["model"]), r["model"])
-        name  = name.replace("★", r"$\star$").replace("_", r"\_")
+        name  = name.replace("*", r"$\star$").replace("_", r"\_")
         T     = f"{r.get('temperature'):.2f}" if r.get("temperature") else "--"
         ece_t = f"{r.get('ece_after_scaling'):.4f}" if r.get("ece_after_scaling") else "--"
         ent   = f"{r.get('entity_ece'):.4f}" if r.get("entity_ece") else "--"
@@ -113,4 +113,4 @@ if __name__ == "__main__":
     plot_theory1(results,
                  os.path.join(FIGURES_DIR, "theory1_bert_vs_bert_crf.png"))
 
-    print(f"\nAll figures → {FIGURES_DIR}/")
+    print(f"\nAll figures -> {FIGURES_DIR}/")

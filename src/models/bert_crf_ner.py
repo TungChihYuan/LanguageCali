@@ -5,8 +5,8 @@ BERT-CRF for NER with forward-backward marginal probabilities.
 Key purpose: Test Theory 1.
   - Same BERT encoder as bert_ner.py
   - Different output: CRF layer + marginal P(y_t=k|x)
-  - If calibration improves vs BERT softmax → structured marginals matter
-  - If not → model complexity is the key variable, not marginals
+  - If calibration improves vs BERT softmax -> structured marginals matter
+  - If not -> model complexity is the key variable, not marginals
 """
 
 import os
@@ -38,11 +38,11 @@ MAX_LEN  = 128
 DATA_DIR = "data"
 
 
-# ── Neural components ─────────────────────────────────────────────────────────
+# -- Neural components ---------------------------------------------------------
 
 class _BertCRFModule(nn.Module):
     """
-    BERT encoder → linear emission scores → CRF decoder.
+    BERT encoder -> linear emission scores -> CRF decoder.
 
     The CRF layer replaces the final softmax. The critical difference:
       - Softmax: each token's distribution is independent
@@ -89,7 +89,7 @@ class _BertCRFModule(nn.Module):
         start_t = self.crf.start_transitions   # (K,)
         end_t   = self.crf.end_transitions     # (K,)
 
-        # ── Forward pass (log space) ──────────────────────────────────────
+        # -- Forward pass (log space) --------------------------------------
         # alpha[t] = log P(y_1..y_t, y_t | x)  shape (B, K)
         alphas = []
         alpha  = start_t.unsqueeze(0) + emit[:, 0]          # (B, K)
@@ -104,7 +104,7 @@ class _BertCRFModule(nn.Module):
             alpha  = alpha * active + alphas[-1] * (1 - active)
             alphas.append(alpha)
 
-        # ── Backward pass (log space) ─────────────────────────────────────
+        # -- Backward pass (log space) -------------------------------------
         # beta[t] = log P(y_{t+1}..y_n | y_t, x)  shape (B, K)
         betas      = [None] * L
         beta       = end_t.unsqueeze(0).expand(B, -1)        # (B, K)
@@ -118,12 +118,12 @@ class _BertCRFModule(nn.Module):
             beta     = beta * active + end_t.unsqueeze(0) * (1 - active)
             betas[t] = beta
 
-        # ── Partition function Z ──────────────────────────────────────────
+        # -- Partition function Z ------------------------------------------
         log_Z = torch.logsumexp(
             alphas[-1] + end_t.unsqueeze(0), dim=1
         ).unsqueeze(1)                                        # (B, 1)
 
-        # ── Marginals ─────────────────────────────────────────────────────
+        # -- Marginals -----------------------------------------------------
         marg_list = []
         for t in range(L):
             log_m = alphas[t] + betas[t] - log_Z             # (B, K)
@@ -132,7 +132,7 @@ class _BertCRFModule(nn.Module):
         return torch.stack(marg_list, dim=1)                  # (B, L, K)
 
 
-# ── Dataset ───────────────────────────────────────────────────────────────────
+# -- Dataset -------------------------------------------------------------------
 
 class _NERDataset(Dataset):
     def __init__(self, data, tokenizer, tag2id, max_len=MAX_LEN):
@@ -171,7 +171,7 @@ class _NERDataset(Dataset):
         }
 
 
-# ── BertCRFNER model ──────────────────────────────────────────────────────────
+# -- BertCRFNER model ----------------------------------------------------------
 
 class BertCRFNER(BaseModel):
     """
@@ -198,7 +198,7 @@ class BertCRFNER(BaseModel):
         self.tag2id: dict = {}
         self.id2tag: dict = {}
 
-    # ── Train ─────────────────────────────────────────────────────────────
+    # -- Train -------------------------------------------------------------
 
     def train(self, train_data, val_data=None) -> None:
         # Build tag vocabulary from training data
@@ -241,7 +241,7 @@ class BertCRFNER(BaseModel):
                   f"avg loss {total_loss/len(loader):.4f} | "
                   f"{(time.time()-t0)/60:.1f}m elapsed")
 
-    # ── Predict ───────────────────────────────────────────────────────────
+    # -- Predict -----------------------------------------------------------
 
     def predict(self, data) -> list[PredictionRow]:
         assert self._module is not None, "Call train() first (or load())."
@@ -262,7 +262,7 @@ class BertCRFNER(BaseModel):
             with torch.no_grad():
                 marg = self._module.marginals(ids, mask).squeeze(0)  # (L, K)
 
-            # Map subword positions → word positions
+            # Map subword positions -> word positions
             prev    = None
             word_n  = -1
             for sub_i, wid in enumerate(wids):
@@ -289,7 +289,7 @@ class BertCRFNER(BaseModel):
 
         return rows
 
-    # ── Save / Load ───────────────────────────────────────────────────────
+    # -- Save / Load -------------------------------------------------------
 
     def save(self, path: str = "outputs/saved/bert_crf_ner.pt") -> None:
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
@@ -298,7 +298,7 @@ class BertCRFNER(BaseModel):
             "tag2id":     self.tag2id,
             "bert_name":  self.bert_name,
         }, path)
-        print(f"Saved → {path}")
+        print(f"Saved -> {path}")
 
     def load(self, path: str = "outputs/saved/bert_crf_ner.pt") -> None:
         ckpt         = torch.load(path, map_location=DEVICE)
@@ -310,7 +310,7 @@ class BertCRFNER(BaseModel):
         print(f"Loaded from {path}")
 
 
-# ── Entrypoint ────────────────────────────────────────────────────────────────
+# -- Entrypoint ----------------------------------------------------------------
 
 if __name__ == "__main__":
     print(f"Device: {DEVICE}")
@@ -320,15 +320,15 @@ if __name__ == "__main__":
 
     model = BertCRFNER(epochs=3)
 
-    print("\n── Training ──")
+    print("\n-- Training --")
     model.train(data["train"], data["validation"])
     model.save()
 
-    print("\n── Predicting test set ──")
+    print("\n-- Predicting test set --")
     test_rows = model.predict(data["test"])
     model.save_predictions(test_rows, split="test")
 
-    print("\n── Predicting val set (for temperature scaling) ──")
+    print("\n-- Predicting val set (for temperature scaling) --")
     val_rows = model.predict(data["validation"])
     model.save_predictions(val_rows, split="val")
 

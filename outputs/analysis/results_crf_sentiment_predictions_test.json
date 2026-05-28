@@ -1,0 +1,25 @@
+{
+  "model": "crf_sentiment_predictions_test",
+  "task": "sentiment",
+  "n_samples": 25000,
+  "accuracy": 0.84936,
+  "ece": 0.07082613035999988,
+  "ada_ece": 0.07082613036000003,
+  "entity_ece": null,
+  "per_type_ece": {},
+  "brier": {
+    "brier": 0.11537514294474605,
+    "reliability": 0.0055301098436234255,
+    "resolution": 0.01643435897469889,
+    "uncertainty": 0.1279475904
+  },
+  "scaling": {
+    "temperature": {
+      "param": 2.4071749069433928,
+      "ece": 0.02612541766969404,
+      "reduction_pct": 63.11330643520691
+    }
+  },
+  "temperature": 2.4071749069433928,
+  "ece_after_scaling": 0.02612541766969404
+}

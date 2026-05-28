@@ -20,7 +20,7 @@ from src.data.imdb import IMDB
 
 class TFIDFSentiment(BaseModel):
     """
-    TF-IDF unigrams+bigrams → L2-regularized Logistic Regression.
+    TF-IDF unigrams+bigrams -> L2-regularized Logistic Regression.
     Confidence = max class probability from predict_proba().
     """
 
@@ -79,7 +79,7 @@ class TFIDFSentiment(BaseModel):
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
         with open(path, "wb") as f:
             pickle.dump({"vec": self._vec, "clf": self._clf}, f)
-        print(f"Saved → {path}")
+        print(f"Saved -> {path}")
 
     def load(self, path: str = "outputs/saved/tfidf_sentiment.pkl") -> None:
         with open(path, "rb") as f:

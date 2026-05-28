@@ -1,0 +1,25 @@
+{
+  "model": "bert_sentiment_predictions_test",
+  "task": "sentiment",
+  "n_samples": 25000,
+  "accuracy": 0.92192,
+  "ece": 0.0555627960000001,
+  "ada_ece": 0.055695465119999996,
+  "entity_ece": null,
+  "per_type_ece": {},
+  "brier": {
+    "brier": 0.06670570195974632,
+    "reliability": 0.004201704699729197,
+    "resolution": 0.007713221142816773,
+    "uncertainty": 0.07198351360000003
+  },
+  "scaling": {
+    "temperature": {
+      "param": 1.8784311735719377,
+      "ece": 0.036673882262890825,
+      "reduction_pct": 33.995614146396164
+    }
+  },
+  "temperature": 1.8784311735719377,
+  "ece_after_scaling": 0.036673882262890825
+}

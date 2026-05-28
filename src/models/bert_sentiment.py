@@ -143,7 +143,7 @@ class BertSentiment(BaseModel):
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
         torch.save({"state_dict": self._model.state_dict(),
                     "bert_name": self.bert_name}, path)
-        print(f"Saved → {path}")
+        print(f"Saved -> {path}")
 
     def load(self, path: str = "outputs/saved/bert_sentiment.pt") -> None:
         ckpt        = torch.load(path, map_location=DEVICE)

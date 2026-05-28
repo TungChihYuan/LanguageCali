@@ -31,4 +31,4 @@ class BaseDataset(ABC):
         path = os.path.join(DATA_DIR, f"{self.name}.pkl")
         with open(path, "wb") as f:
             pickle.dump(data, f)
-        print(f"Saved → {path}")
+        print(f"Saved -> {path}")

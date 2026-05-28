@@ -25,7 +25,7 @@ MODEL_COLORS = {
 DISPLAY_NAMES = {
     "crf":          "CRF",
     "bert":         "BERT",
-    "bert_crf":     "BERT-CRF ★",
+    "bert_crf":     "BERT-CRF *",
     "tfidf_logreg": "TF-IDF+LR",
     "llm":          "LLM (GPT-4o-mini)",
 }
@@ -43,7 +43,7 @@ def _model_key(name: str) -> str:
     return n
 
 
-# ── Reliability diagram ───────────────────────────────────────────────────────
+# -- Reliability diagram -------------------------------------------------------
 
 def plot_reliability(
     bins:       list[dict],
@@ -104,10 +104,10 @@ def plot_reliability(
     plt.tight_layout()
     plt.savefig(save_path, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close()
-    print(f"  → {save_path}")
+    print(f"  -> {save_path}")
 
 
-# ── ECE bar chart ─────────────────────────────────────────────────────────────
+# -- ECE bar chart -------------------------------------------------------------
 
 def plot_ece_bars(results: list[dict], task: str, save_path: str) -> None:
     os.makedirs(os.path.dirname(os.path.abspath(save_path)), exist_ok=True)
@@ -133,7 +133,7 @@ def plot_ece_bars(results: list[dict], task: str, save_path: str) -> None:
                     f"{v:.4f}", ha="center", fontsize=8)
 
     task_label = "NER (CoNLL-2003)" if task == "ner" else "Sentiment (IMDB)"
-    ax.set_title(f"ECE Before / After Temperature Scaling — {task_label}",
+    ax.set_title(f"ECE Before / After Temperature Scaling -- {task_label}",
                  fontsize=12, fontweight="bold")
     ax.set_xticks(x); ax.set_xticklabels(labels, fontsize=10)
     ax.set_ylabel("ECE (lower = better)", fontsize=11)
@@ -142,17 +142,17 @@ def plot_ece_bars(results: list[dict], task: str, save_path: str) -> None:
     plt.tight_layout()
     plt.savefig(save_path, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close()
-    print(f"  → {save_path}")
+    print(f"  -> {save_path}")
 
 
-# ── Entity-only vs all-token ──────────────────────────────────────────────────
+# -- Entity-only vs all-token --------------------------------------------------
 
 def plot_entity_vs_all(results: list[dict], save_path: str) -> None:
     os.makedirs(os.path.dirname(os.path.abspath(save_path)), exist_ok=True)
     data = [r for r in results
             if r["task"] == "ner" and r.get("entity_ece") is not None]
     if not data:
-        print("No entity_ece data yet — skipping entity plot.")
+        print("No entity_ece data yet -- skipping entity plot.")
         return
     data = sorted(data, key=lambda r: r["ece"], reverse=True)
 
@@ -182,10 +182,10 @@ def plot_entity_vs_all(results: list[dict], save_path: str) -> None:
     plt.tight_layout()
     plt.savefig(save_path, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close()
-    print(f"  → {save_path}")
+    print(f"  -> {save_path}")
 
 
-# ── Theory 1 ─────────────────────────────────────────────────────────────────
+# -- Theory 1 -----------------------------------------------------------------
 
 def plot_theory1(results: list[dict], save_path: str) -> None:
     os.makedirs(os.path.dirname(os.path.abspath(save_path)), exist_ok=True)
@@ -204,7 +204,7 @@ def plot_theory1(results: list[dict], save_path: str) -> None:
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
     fig.suptitle("Theory 1: Do Structured Marginals Improve Calibration?\n"
-                 "(BERT encoder fixed — only output layer changes)",
+                 "(BERT encoder fixed -- only output layer changes)",
                  fontsize=13, fontweight="bold")
 
     ece_all = [r["ece"]                for r in models]
@@ -227,16 +227,16 @@ def plot_theory1(results: list[dict], save_path: str) -> None:
                     edgecolors="black", linewidth=0.8)
         ax2.annotate(lbl, (r["accuracy"], r["ece"]),
                      xytext=(8, 4), textcoords="offset points", fontsize=10)
-    ax2.set_xlabel("Accuracy ↑", fontsize=11)
-    ax2.set_ylabel("ECE ↓ (better calibrated)", fontsize=11)
+    ax2.set_xlabel("Accuracy ^", fontsize=11)
+    ax2.set_ylabel("ECE v (better calibrated)", fontsize=11)
     ax2.set_title("Accuracy vs Calibration Tradeoff")
     ax2.grid(True, alpha=0.3)
 
     if bert is not None and bert_crf is not None:
         delta   = bert["ece"] - bert_crf["ece"]
-        verdict = "✓ Supports Theory 1" if delta > 0.001 else "✗ Theory 1 not supported"
+        verdict = "OK Supports Theory 1" if delta > 0.001 else "X Theory 1 not supported"
         ax2.text(0.03, 0.97,
-                 f"BERT-CRF vs BERT: ΔECE = {delta:+.4f}\n{verdict}",
+                 f"BERT-CRF vs BERT: DeltaECE = {delta:+.4f}\n{verdict}",
                  transform=ax2.transAxes, fontsize=9, va="top",
                  bbox=dict(boxstyle="round", facecolor="lightyellow",
                            edgecolor="orange", alpha=0.95))
@@ -244,4 +244,4 @@ def plot_theory1(results: list[dict], save_path: str) -> None:
     plt.tight_layout()
     plt.savefig(save_path, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close()
-    print(f"  → {save_path}")
+    print(f"  -> {save_path}")

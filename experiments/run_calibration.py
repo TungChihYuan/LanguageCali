@@ -35,7 +35,7 @@ def analyze(filepath: str) -> dict:
     rows, task = load_predictions(filepath)
     print(f"  Task: {task} | n={len(rows):,}")
 
-    # ── Base metrics ──────────────────────────────────────────────────────
+    # -- Base metrics ------------------------------------------------------
     results = {"model": basename, "task": task}
     results.update(full_metrics(rows, task))
 
@@ -51,14 +51,14 @@ def analyze(filepath: str) -> dict:
 
     pct_hi = np.mean([c > 0.99 for c in conf]) * 100
     if pct_hi > 50:
-        print(f"  ⚠ {pct_hi:.1f}% of predictions have conf > 0.99 — likely overconfident")
+        print(f"  [!] {pct_hi:.1f}% of predictions have conf > 0.99 -- likely overconfident")
 
     if task == "ner" and results.get("per_type_ece"):
         print("  Per-type ECE:")
         for et, v in results["per_type_ece"].items():
             print(f"    {et:<6}  ECE={v['ece']:.4f}  Acc={v['accuracy']:.4f}  n={v['n']}")
 
-    # ── Reliability diagram ───────────────────────────────────────────────
+    # -- Reliability diagram -----------------------------------------------
     plot_reliability(
         bins       = results["_bin_data"],
         title      = f"Reliability: {basename}",
@@ -68,7 +68,7 @@ def analyze(filepath: str) -> dict:
         entity_ece = results.get("entity_ece"),
     )
 
-    # ── Temperature Scaling ───────────────────────────────────────────────
+    # -- Temperature Scaling -----------------------------------------------
     # Try several naming conventions for val file
     val_path = None
     for candidate in [
@@ -98,7 +98,7 @@ def analyze(filepath: str) -> dict:
 
             direction = "overconfident" if param > 1 else "underconfident"
             print(f"    [{method_name}] T={param:.3f} ({direction}) | "
-                  f"ECE: {results['ece']:.4f} → {ece_s:.4f} ({reduction:.1f}%↓)")
+                  f"ECE: {results['ece']:.4f} -> {ece_s:.4f} ({reduction:.1f}%v)")
 
             plot_reliability(
                 bins      = bins_s,
@@ -116,14 +116,14 @@ def analyze(filepath: str) -> dict:
         results["temperature"]       = ts.get("param")
         results["ece_after_scaling"] = ts.get("ece")
     else:
-        print(f"  No val file found — skipping Temperature Scaling.")
+        print(f"  No val file found -- skipping Temperature Scaling.")
 
-    # ── Save JSON ─────────────────────────────────────────────────────────
+    # -- Save JSON ---------------------------------------------------------
     save_r = {k: v for k, v in results.items() if k != "_bin_data"}
     out    = os.path.join(ANALYSIS_DIR, f"results_{basename}.json")
     with open(out, "w") as f:
         json.dump(save_r, f, indent=2)
-    print(f"\n  Saved → {out}")
+    print(f"\n  Saved -> {out}")
     return results
 
 
@@ -141,13 +141,13 @@ def print_summary(results: list[dict]) -> None:
     for r in sorted(results, key=lambda x: (order.get(x["task"], 2), x["ece"])):
         if prev and r["task"] != prev: print()
         prev  = r["task"]
-        T     = f"{r['temperature']:.2f}"       if r.get("temperature")       else "  —"
-        ece_t = f"{r['ece_after_scaling']:.4f}" if r.get("ece_after_scaling") else "   —"
-        ent   = f"{r['entity_ece']:.4f}"        if r.get("entity_ece")        else "   —"
+        T     = f"{r['temperature']:.2f}"       if r.get("temperature")       else "  --"
+        ece_t = f"{r['ece_after_scaling']:.4f}" if r.get("ece_after_scaling") else "   --"
+        ent   = f"{r['entity_ece']:.4f}"        if r.get("entity_ece")        else "   --"
         print(f"{r['model']:<32} {r['task']:<11} {r['accuracy']:>6.4f} "
               f"{r['ece']:>7.4f} {ent:>9} {r['ada_ece']:>8.4f} "
               f"{r['brier']['brier']:>7.4f} {T:>6} {ece_t:>8}")
-    print(f"\nFigures → {FIGURES_DIR}/")
+    print(f"\nFigures -> {FIGURES_DIR}/")
 
 
 if __name__ == "__main__":
