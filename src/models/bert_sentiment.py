@@ -10,10 +10,10 @@ import time
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
+from torch.optim import AdamW
 from transformers import (
     BertTokenizerFast,
     BertForSequenceClassification,
-    AdamW,
     get_linear_schedule_with_warmup,
 )
 from sklearn.metrics import classification_report
@@ -21,7 +21,14 @@ from sklearn.metrics import classification_report
 from src.models.base import BaseModel, PredictionRow
 from src.data.imdb import IMDB
 
-DEVICE     = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def _best_device() -> torch.device:
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
+
+DEVICE = _best_device()
 MAX_LEN    = 256
 LABELS     = ["negative", "positive"]
 LABEL2ID   = {l: i for i, l in enumerate(LABELS)}
