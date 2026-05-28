@@ -38,7 +38,7 @@ def _best_device() -> torch.device:
 
 
 DEVICE   = _best_device()
-MAX_LEN  = 256
+MAX_LEN  = 128   # 256→128: 4x faster attention, minimal accuracy loss on IMDB
 LABELS   = ["negative", "positive"]
 TAG2ID   = {l: i for i, l in enumerate(LABELS)}
 ID2TAG   = {i: l for l, i in TAG2ID.items()}
